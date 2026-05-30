@@ -1,0 +1,1123 @@
+import React, { useState, useMemo } from 'react';
+
+// 초기 학생 10명 데이터 세팅 (티앤디 학원 학생 정보 맞춤 변경)
+const INITIAL_STUDENTS = [
+  {
+    id: 1,
+    name: "정선후",
+    emoji: "👦",
+    grade: "중2 (삼산중)",
+    phone: "010-1234-5678",
+    parentPhone: "010-8765-4321",
+    registrationDate: "2026-03-02",
+    tags: ["삼산중", "중등부", "수학A반"],
+    classDays: ["월", "화", "목"], // 중2 수업 요일
+    notes: "삼산중학교 2학년 정선후 학생. 수업 집중도가 매우 높으며 일차방정식 개념 학습 완료.",
+    attendance: "출석", 
+    homeworkStatus: "완료", 
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "일차방정식 오답노트", status: "완료", feedback: "꼼꼼하게 서술함" },
+      { title: "수학 익힘책 p.42-45", status: "완료", feedback: "오답 수정까지 완료" }
+    ]
+  },
+  {
+    id: 2,
+    name: "김강산",
+    emoji: "🧑",
+    grade: "중2 (삼산중)",
+    phone: "010-2345-6789",
+    parentPhone: "010-9876-5432",
+    registrationDate: "2026-03-05",
+    tags: ["삼산중", "개념심화", "기초반"],
+    classDays: ["월", "화", "목"], // 중2 수업 요일
+    notes: "삼산중학교 2학년 김강산 학생. 연산 실수를 보완하기 위해 데일리 계산 테스트 밀착 체크 중.",
+    attendance: "출석",
+    homeworkStatus: "완료",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "지각" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "일차방정식 오답노트", status: "완료", feedback: "지각했으나 과제 완수" },
+      { title: "수학 익힘책 p.42-45", status: "완료", feedback: "성실하게 해결함" }
+    ]
+  },
+  {
+    id: 3,
+    name: "박나현",
+    emoji: "👧",
+    grade: "중3 (삼산중)",
+    phone: "010-3456-7890",
+    parentPhone: "010-0987-6543",
+    registrationDate: "2026-03-10",
+    tags: ["삼산중", "성실파", "중등부"],
+    classDays: ["월", "화", "목"], // 중3 수업 요일
+    notes: "삼산중학교 3학년 박나현 학생. 오답노트 작성이 아주 정교하며, 피드백 반영 속도가 무척 빠름.",
+    attendance: "지각",
+    homeworkStatus: "진행중",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "지각" }
+    ],
+    homeworkHistory: [
+      { title: "삼각비 기초이해", status: "완료", feedback: "암기 양호" },
+      { title: "수학 익힘책 p.42-45", status: "진행중", feedback: "학원에서 이어서 푸는 중" }
+    ]
+  },
+  {
+    id: 4,
+    name: "이연지",
+    emoji: "👩",
+    grade: "중3 (삼산중)",
+    phone: "010-4567-8901",
+    parentPhone: "010-1098-7654",
+    registrationDate: "2026-02-15",
+    tags: ["삼산중", "예비고등", "수학A반"],
+    classDays: ["월", "화", "목"], // 중3 수업 요일
+    notes: "삼산중학교 3학년 이연지 학생. 고등 수학 공통수학 상 선행학습 성실히 따라오는 중.",
+    attendance: "출석",
+    homeworkStatus: "완료",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "고등 수학 공통인수", status: "완료", feedback: "과정이 훌륭함" },
+      { title: "수학 익힘책 p.42-45", status: "완료", feedback: "깔끔한 마무리" }
+    ]
+  },
+  {
+    id: 5,
+    name: "배민호",
+    emoji: "👦",
+    grade: "중3 (삼산중)",
+    phone: "010-5678-9012",
+    parentPhone: "010-2109-8765",
+    registrationDate: "2026-03-20",
+    tags: ["삼산중", "오답강조", "중등부"],
+    classDays: ["월", "화", "목"], // 중3 수업 요일
+    notes: "삼산중학교 3학년 배민호 학생. 수학적 센스는 있으나 서술형 과정 생략하는 습관 교정 지도 중.",
+    attendance: "결석",
+    homeworkStatus: "미제출",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "결석" },
+      { date: "2026-05-30", status: "결석" }
+    ],
+    homeworkHistory: [
+      { title: "삼각비 공식테스트", status: "미제출", feedback: "결석으로 보강 처리 예정" },
+      { title: "수학 익힘책 p.42-45", status: "미제출", feedback: "전화 연락 필요" }
+    ]
+  },
+  {
+    id: 6,
+    name: "최서윤",
+    emoji: "👩",
+    grade: "중3 (부일중)",
+    phone: "010-6789-0123",
+    parentPhone: "010-3210-9876",
+    registrationDate: "2026-04-01",
+    tags: ["부일중", "수학B반", "개념탄탄"],
+    classDays: ["월", "화", "목"], // 중3 수업 요일
+    notes: "부일중학교 3학년 최서윤 학생. 등원 시 묵묵히 제 몫을 하고 가며, 수업 집중도가 훌륭함.",
+    attendance: "출석",
+    homeworkStatus: "완료",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "인수분해 오답노트", status: "완료", feedback: "매우 성실히 채움" },
+      { title: "수학 익힘책 p.42-45", status: "완료", feedback: "깔끔함" }
+    ]
+  },
+  {
+    id: 7,
+    name: "김우리",
+    emoji: "👦",
+    grade: "고1 (영선고)",
+    phone: "010-7890-1234",
+    parentPhone: "010-4321-0987",
+    registrationDate: "2026-04-10",
+    tags: ["영선고", "내신완벽대비", "고등부"],
+    classDays: ["월", "수"], // 고1 수업 요일
+    notes: "영선고등학교 1학년 김우리 학생. 첫 고등학교 내신 준비를 위해 전년도 기출 분석 풀이 중.",
+    attendance: "출석",
+    homeworkStatus: "진행중",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "조퇴" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "다항식 연산 오답정리", status: "완료", feedback: "완성도 높음" },
+      { title: "수학 익힘책 p.42-45", status: "진행중", feedback: "절반 수행 완료" }
+    ]
+  },
+  {
+    id: 8,
+    name: "김준서",
+    emoji: "🧑",
+    grade: "고1 (영선고)",
+    phone: "010-8901-2345",
+    parentPhone: "010-5432-1098",
+    registrationDate: "2026-03-01",
+    tags: ["영선고", "심화반", "고등부"],
+    classDays: ["월", "수"], // 고1 수업 요일
+    notes: "영선고등학교 1학년 김준서 학생. 고난이도 킬러 문항도 뚝심 있게 직접 유도해 내는 장점이 있음.",
+    attendance: "출석",
+    homeworkStatus: "완료",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "고등 수학 공통인수", status: "완료", feedback: "창의적인 접근법" },
+      { title: "수학 익힘책 p.42-45", status: "완료", feedback: "완벽함" }
+    ]
+  },
+  {
+    id: 9,
+    name: "방의서",
+    emoji: "👧",
+    grade: "고1 (제일고)",
+    phone: "010-9012-3456",
+    parentPhone: "010-6543-2109",
+    registrationDate: "2026-04-15",
+    tags: ["제일고", "오답체크강조", "고등부"],
+    classDays: ["월", "수"], // 고1 수업 요일
+    notes: "제일고등학교 1학년 방의서 학생. 주기적인 개념 정리 노트 검사. 계산 실수 축소 위주 훈련.",
+    attendance: "조퇴",
+    homeworkStatus: "미제출",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "지각" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "조퇴" }
+    ],
+    homeworkHistory: [
+      { title: "다항식 연산 오답정리", status: "완료", feedback: "피드백 수렴 잘함" },
+      { title: "수학 익힘책 p.42-45", status: "미제출", feedback: "추후 보강 때 제출 예정" }
+    ]
+  },
+  {
+    id: 10,
+    name: "김하은",
+    emoji: "👩",
+    grade: "고1 (안남고)",
+    phone: "010-0123-4567",
+    parentPhone: "010-7654-3210",
+    registrationDate: "2026-03-12",
+    tags: ["안남고", "개념정밀독해", "고등부"],
+    classDays: ["월", "수"], // 고1 수업 요일
+    notes: "안남고등학교 1학년 김하은 학생. 교과서 개념 증명 과정을 성실하게 탐독하고 정리함.",
+    attendance: "출석",
+    homeworkStatus: "완료",
+    attendanceHistory: [
+      { date: "2026-05-28", status: "출석" },
+      { date: "2026-05-29", status: "출석" },
+      { date: "2026-05-30", status: "출석" }
+    ],
+    homeworkHistory: [
+      { title: "다항식 연산 오답정리", status: "완료", feedback: "매우 우수한 노트 필기" },
+      { title: "수학 익힘책 p.42-45", status: "완료", feedback: "풀이 깔끔함" }
+    ]
+  }
+];
+
+const INITIAL_HOMEWORKS = [
+  { id: "hw1", title: "수학 익힘책 p.42-45", dueDate: "오늘까지" },
+  { id: "hw2", title: "일차방정식 오답노트", dueDate: "지난 과제" },
+  { id: "hw3", title: "기초 단원 평가 오답 정리", dueDate: "다음주 월요일" }
+];
+
+export default function App() {
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const [homeworks, setHomeworks] = useState(INITIAL_HOMEWORKS);
+  const [selectedHomeworkId, setSelectedHomeworkId] = useState("hw1");
+  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, students, attendance, homework
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  
+  // 등원 일정 확인을 위한 요일 선택 상태 (기본값 '월')
+  const [selectedDay, setSelectedDay] = useState("월");
+
+  // 모달 에디터 상태
+  const [isEditing, setIsEditing] = useState(false);
+  const [editStudentData, setEditStudentData] = useState(null);
+
+  // 알림 메시지 모달 대용 토스트
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2000);
+  };
+
+  // 통계 계산
+  const stats = useMemo(() => {
+    const total = students.length;
+    const present = students.filter(s => s.attendance === "출석").length;
+    const late = students.filter(s => s.attendance === "지각").length;
+    const absent = students.filter(s => s.attendance === "결석").length;
+    const excused = students.filter(s => s.attendance === "조퇴").length;
+
+    // 현재 선택한 숙제의 상태 세기
+    let homeworkDone = 0;
+    let homeworkPending = 0;
+    let homeworkNone = 0;
+
+    students.forEach(s => {
+      if (s.homeworkStatus === "완료") homeworkDone++;
+      else if (s.homeworkStatus === "진행중") homeworkPending++;
+      else homeworkNone++;
+    });
+
+    return {
+      total,
+      present,
+      late,
+      absent,
+      excused,
+      attendanceRate: Math.round(((present + late + excused) / total) * 100),
+      homeworkDone,
+      homeworkPending,
+      homeworkNone,
+      homeworkRate: Math.round((homeworkDone / total) * 100)
+    };
+  }, [students]);
+
+  // 요일 필터링된 등원 예정 학생 리스트
+  const scheduledStudents = useMemo(() => {
+    return students.filter(student => student.classDays && student.classDays.includes(selectedDay));
+  }, [students, selectedDay]);
+
+  // 학생 검색 필터링
+  const filteredStudents = useMemo(() => {
+    return students.filter(student => 
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [students, searchQuery]);
+
+  // 단일 학생 선택
+  const selectedStudent = useMemo(() => {
+    return students.find(s => s.id === selectedStudentId);
+  }, [students, selectedStudentId]);
+
+  // 출결 상태 변경 함수
+  const handleAttendanceChange = (studentId, status) => {
+    setStudents(prev => prev.map(student => {
+      if (student.id === studentId) {
+        // 이력에도 당일 날짜(2026-05-30)로 상태를 업데이트 혹은 추가
+        const today = "2026-05-30";
+        let updatedHistory = [...student.attendanceHistory];
+        const existingIdx = updatedHistory.findIndex(h => h.date === today);
+        if (existingIdx > -1) {
+          updatedHistory[existingIdx] = { date: today, status };
+        } else {
+          updatedHistory = [{ date: today, status }, ...updatedHistory];
+        }
+
+        return {
+          ...student,
+          attendance: status,
+          attendanceHistory: updatedHistory
+        };
+      }
+      return student;
+    }));
+    showToast(`출결 변경 완료`);
+  };
+
+  // 숙제 상태 변경 함수
+  const handleHomeworkStatusChange = (studentId, status) => {
+    setStudents(prev => prev.map(student => {
+      if (student.id === studentId) {
+        return {
+          ...student,
+          homeworkStatus: status
+        };
+      }
+      return student;
+    }));
+  };
+
+  // 학생 상세 정보 업데이트 저장
+  const handleSaveStudentDetails = () => {
+    setStudents(prev => prev.map(s => s.id === editStudentData.id ? editStudentData : s));
+    setSelectedStudentId(editStudentData.id);
+    setIsEditing(false);
+    showToast("학생 정보가 수정되었습니다.");
+  };
+
+  // 노션 느낌의 학생 정보 생성
+  const handleAddNewStudent = () => {
+    const newId = students.length + 1;
+    const newStudent = {
+      id: newId,
+      name: `신규학생 ${newId}`,
+      emoji: "🆕",
+      grade: "중등 2학년",
+      phone: "010-0000-0000",
+      parentPhone: "010-0000-0000",
+      registrationDate: "2026-05-30",
+      tags: ["신입생"],
+      classDays: ["월", "화", "목"],
+      notes: "새로 등록한 학생입니다. 특이사항을 입력해 주세요.",
+      attendance: "출석",
+      homeworkStatus: "진행중",
+      attendanceHistory: [{ date: "2026-05-30", status: "출석" }],
+      homeworkHistory: []
+    };
+    setStudents(prev => [...prev, newStudent]);
+    setEditStudentData(newStudent);
+    setSelectedStudentId(newId);
+    setIsEditing(true);
+    showToast("새로운 학생 슬롯이 생성되었습니다.");
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FBFBFA] text-[#37352F] font-sans flex flex-col pb-24 selection:bg-[#E3E2E0] relative">
+      
+      {/* 노션 스타일 헤더 커버 */}
+      <div className="w-full h-24 bg-gradient-to-r from-neutral-200 to-neutral-100 border-b border-neutral-200/60 relative">
+        <div className="absolute -bottom-6 left-6 text-4xl p-2 bg-white rounded-xl shadow-sm border border-neutral-200/50">
+          🏫
+        </div>
+      </div>
+
+      {/* 헤더 바 */}
+      <div className="px-6 pt-8 pb-4 max-w-lg mx-auto w-full">
+        <div className="text-xs text-neutral-400 flex items-center gap-1.5 mb-1">
+          <span>워크스페이스</span>
+          <span>/</span>
+          <span className="font-medium text-neutral-600">학생 관리 대시보드</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">티앤디 학원 관리 시스템</h1>
+        <p className="text-xs text-neutral-500 mt-1">
+          📅 오늘 날짜: <span className="font-semibold text-neutral-700">2026년 5월 30일 (토)</span>
+        </p>
+      </div>
+
+      {/* 메인 뷰 컨테이너 */}
+      <main className="px-4 max-w-lg mx-auto w-full flex-1">
+        
+        {/* ==================== 1. 대시보드 탭 ==================== */}
+        {activeTab === "dashboard" && (
+          <div className="space-y-5 animate-fadeIn">
+            {/* 노션 스타일 콜아웃 */}
+            <div className="bg-neutral-50 border border-neutral-200 p-4 rounded-xl flex items-start gap-3">
+              <span className="text-xl">💡</span>
+              <div className="text-xs text-neutral-600 leading-relaxed">
+                <span className="font-bold text-[#37352F]">알림:</span> 중2·3 수업요일은 <span className="font-bold text-indigo-600">월·화·목</span>, 고1 수업요일은 <span className="font-bold text-teal-600">월·수</span>입니다. 아래 요일 필터를 탭하여 등원 학생 리스트를 확인하세요.
+              </div>
+            </div>
+
+            {}
+            {/* 요일별 등원 스케줄 현황판 */}
+            <div className="bg-white border border-neutral-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
+                  <span>📅</span> 요일별 등원 스케줄 확인
+                </h3>
+                <span className="text-[10px] text-neutral-400">선택 요일: {selectedDay}요일</span>
+              </div>
+              
+              {/* 요일 선택 단추 버튼 */}
+              <div className="grid grid-cols-5 gap-1.5 mb-3.5">
+                {["월", "화", "수", "목", "금"].map((day) => {
+                  const isSelected = selectedDay === day;
+                  // 요일별 스케줄 꼬리표 정보 계산
+                  const count = students.filter(s => s.classDays && s.classDays.includes(day)).length;
+
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => {
+                        setSelectedDay(day);
+                        showToast(`${day}요일 스케줄 조회`);
+                      }}
+                      className={`py-2 px-1 rounded-lg text-xs font-bold flex flex-col items-center transition-all ${
+                        isSelected 
+                          ? "bg-[#37352F] text-white shadow-sm" 
+                          : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200/50"
+                      }`}
+                    >
+                      <span>{day}</span>
+                      <span className={`text-[9px] font-normal mt-0.5 ${isSelected ? "text-neutral-300" : "text-neutral-400"}`}>
+                        {count}명
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 해당 요일에 등원하는 학생 요약 리스트 */}
+              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                {scheduledStudents.map(student => (
+                  <div 
+                    key={student.id} 
+                    onClick={() => {
+                      setSelectedStudentId(student.id);
+                      setIsEditing(false);
+                    }}
+                    className="flex items-center justify-between p-2 bg-neutral-50 hover:bg-neutral-100/80 rounded-lg text-xs cursor-pointer transition-colors border border-neutral-200/40"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{student.emoji}</span>
+                      <span className="font-bold text-[#37352F]">{student.name}</span>
+                      <span className="text-[10px] text-neutral-400">{student.grade}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded-full font-medium">
+                        {student.classDays.join("·")}
+                      </span>
+                      <span className="text-neutral-400 text-[10px]">➔</span>
+                    </div>
+                  </div>
+                ))}
+                {scheduledStudents.length === 0 && (
+                  <div className="text-center py-6 text-xs text-neutral-400">
+                    선택한 요일({selectedDay}요일)에는 정규 수업 스케줄이 없습니다.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 통계 요약 카드 그리드 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white border border-neutral-200 p-4 rounded-xl hover:border-neutral-300 transition-colors">
+                <div className="text-xs text-neutral-400 mb-1 flex items-center gap-1">
+                  <span>⏱</span> 오늘 출석률
+                </div>
+                <div className="text-xl font-bold text-emerald-600">
+                  {stats.attendanceRate}% <span className="text-xs font-normal text-neutral-500">({stats.present + stats.late + stats.excused}/10명)</span>
+                </div>
+                <div className="w-full bg-neutral-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-emerald-500 h-full" style={{ width: `${stats.attendanceRate}%` }}></div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-neutral-200 p-4 rounded-xl hover:border-neutral-300 transition-colors">
+                <div className="text-xs text-neutral-400 mb-1 flex items-center gap-1">
+                  <span>📝</span> 오늘 숙제 완료율
+                </div>
+                <div className="text-xl font-bold text-blue-600">
+                  {stats.homeworkRate}% <span className="text-xs font-normal text-neutral-500">({stats.homeworkDone}/10명)</span>
+                </div>
+                <div className="w-full bg-neutral-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-blue-500 h-full" style={{ width: `${stats.homeworkRate}%` }}></div>
+                </div>
+              </div>
+            </div>
+
+            {/* 실시간 요약 보드 */}
+            <div className="bg-white border border-neutral-200 rounded-xl p-4">
+              <h3 className="text-sm font-bold border-b border-neutral-100 pb-2 mb-3 flex items-center justify-between">
+                <span>📊 금일 세부 요약</span>
+                <span className="text-xs font-normal text-neutral-400">오후 8시 25분 갱신</span>
+              </h3>
+              <div className="space-y-2.5 text-xs text-neutral-600">
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-2">🟢 <span className="font-medium text-neutral-700">등원 완료 (출석+지각)</span></span>
+                  <span className="font-semibold bg-emerald-50 px-2 py-0.5 rounded text-emerald-700">{stats.present + stats.late} 명</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-2">🔴 <span className="font-medium text-neutral-700">미등원 / 결석</span></span>
+                  <span className="font-semibold bg-rose-50 px-2 py-0.5 rounded text-rose-700">{stats.absent} 명</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-2">🟡 <span className="font-medium text-neutral-700">조퇴 발생</span></span>
+                  <span className="font-semibold bg-amber-50 px-2 py-0.5 rounded text-amber-700">{stats.excused} 명</span>
+                </div>
+                <div className="flex justify-between items-center border-t border-neutral-100 pt-2.5">
+                  <span className="flex items-center gap-2">🔵 <span className="font-medium text-neutral-700">숙제 확인 완료</span></span>
+                  <span className="font-semibold bg-sky-50 px-2 py-0.5 rounded text-sky-700">{stats.homeworkDone} 명</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 빠른 가기 섹션 */}
+            <div>
+              <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2.5">단축 기능</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setActiveTab("attendance")}
+                  className="p-3 bg-neutral-100 hover:bg-neutral-200/70 active:scale-[0.98] transition-all rounded-lg text-left text-xs font-medium flex items-center justify-between"
+                >
+                  <span>⏱ 빠른 출결 체크</span>
+                  <span>➔</span>
+                </button>
+                <button 
+                  onClick={() => setActiveTab("homework")}
+                  className="p-3 bg-neutral-100 hover:bg-neutral-200/70 active:scale-[0.98] transition-all rounded-lg text-left text-xs font-medium flex items-center justify-between"
+                >
+                  <span>📝 숙제 제출도 확인</span>
+                  <span>➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== 2. 학생 관리 탭 ==================== */}
+        {activeTab === "students" && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* 검색 & 추가 헤더 */}
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-2.5 text-neutral-400 text-sm">🔍</span>
+                <input 
+                  type="text" 
+                  placeholder="이름, 학년, 또는 태그 검색..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full text-xs pl-8 pr-4 py-2 bg-neutral-100 border-none rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-300 placeholder:text-neutral-400"
+                />
+              </div>
+              <button 
+                onClick={handleAddNewStudent}
+                className="bg-[#37352F] text-white hover:bg-neutral-800 active:scale-[0.96] text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1 shrink-0"
+              >
+                <span>+</span> 신규 등록
+              </button>
+            </div>
+
+            {}
+            {/* 노션 데이터베이스 보드 뷰 느낌의 리스트 */}
+            <div className="space-y-2">
+              <div className="text-xs text-neutral-400 font-semibold mb-1">총 {filteredStudents.length}명의 학생</div>
+              {filteredStudents.map(student => (
+                <div 
+                  key={student.id} 
+                  onClick={() => {
+                    setSelectedStudentId(student.id);
+                    setIsEditing(false);
+                  }}
+                  className="bg-white border border-neutral-200 hover:border-neutral-300 rounded-xl p-3.5 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl p-1 bg-neutral-50 rounded-lg">{student.emoji}</span>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-sm text-[#37352F]">{student.name}</span>
+                        <span className="text-[10px] text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">
+                          {student.grade}
+                        </span>
+                        {/* 정규 등원 요일 뱃지 추가 */}
+                        <span className="text-[9px] font-semibold text-indigo-600 bg-indigo-50/70 px-1.5 py-0.5 rounded">
+                          {student.classDays ? student.classDays.join("·") : ""}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-neutral-500 mt-0.5">
+                        📞 {student.phone}
+                      </div>
+                      {/* 태그 표시 */}
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {student.tags.map((tag, idx) => (
+                          <span 
+                            key={idx} 
+                            className="text-[9px] font-medium bg-[#F1F0E8] text-[#5A5A50] px-1.5 py-0.5 rounded-full"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 우측 간단 상태 정보 */}
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      student.attendance === "출석" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
+                      student.attendance === "지각" ? "bg-amber-50 text-amber-600 border border-amber-100" :
+                      student.attendance === "결석" ? "bg-rose-50 text-rose-600 border border-rose-100" :
+                      "bg-neutral-50 text-neutral-600 border border-neutral-100"
+                    }`}>
+                      {student.attendance}
+                    </span>
+                    <span className="text-[10px] text-neutral-400">
+                      최근 과제: <strong className="text-neutral-600">{student.homeworkStatus}</strong>
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {filteredStudents.length === 0 && (
+                <div className="text-center py-8 text-xs text-neutral-400">
+                  검색 결과에 맞는 학생이 없습니다.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== 3. 출결 관리 탭 ==================== */}
+        {activeTab === "attendance" && (
+          <div className="space-y-4 animate-fadeIn">
+            <div className="bg-white border border-neutral-200 rounded-xl p-4">
+              <h3 className="text-sm font-bold mb-1">오늘의 출결 대장</h3>
+              <p className="text-xs text-neutral-400 mb-3">출석부 클릭 한 번으로 간편하게 상태를 수정할 수 있습니다.</p>
+              
+              {/* 원클릭 토글러 목록 */}
+              <div className="space-y-3">
+                {students.map(student => (
+                  <div key={student.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer active:opacity-75"
+                      onClick={() => {
+                        setSelectedStudentId(student.id);
+                        setIsEditing(false);
+                      }}
+                    >
+                      <span className="text-lg">{student.emoji}</span>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs">{student.name}</span>
+                          <span className="text-[9px] font-medium text-indigo-600 bg-indigo-50 px-1 rounded">
+                            {student.classDays ? student.classDays.join("·") : ""}
+                          </span>
+                        </div>
+                        <span className="text-[9px] text-neutral-400 block">{student.grade}</span>
+                      </div>
+                    </div>
+
+                    {/* 출결 버튼 군 */}
+                    <div className="flex gap-1">
+                      {["출석", "지각", "조퇴", "결석"].map(status => {
+                        const isSelected = student.attendance === status;
+                        let activeStyle = "";
+                        if (isSelected) {
+                          if (status === "출석") activeStyle = "bg-emerald-500 text-white font-bold";
+                          else if (status === "지각") activeStyle = "bg-amber-500 text-white font-bold";
+                          else if (status === "조퇴") activeStyle = "bg-orange-500 text-white font-bold";
+                          else if (status === "결석") activeStyle = "bg-rose-500 text-white font-bold";
+                        } else {
+                          activeStyle = "bg-neutral-100 text-neutral-600 hover:bg-neutral-200/50";
+                        }
+
+                        return (
+                          <button
+                            key={status}
+                            onClick={() => handleAttendanceChange(student.id, status)}
+                            className={`text-[10px] px-2.5 py-1.5 rounded-lg transition-all active:scale-95 ${activeStyle}`}
+                          >
+                            {status}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== 4. 숙제 관리 탭 ==================== */}
+        {activeTab === "homework" && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* 숙제 선택기 */}
+            <div className="bg-white border border-neutral-200 rounded-xl p-4">
+              <label className="block text-xs font-bold text-neutral-500 mb-2">과제 선택</label>
+              <div className="space-y-2">
+                {homeworks.map(hw => (
+                  <div 
+                    key={hw.id}
+                    onClick={() => {
+                      setSelectedHomeworkId(hw.id);
+                      showToast(`"${hw.title}" 과제 관리 모드로 변경`);
+                    }}
+                    className={`p-3 rounded-lg border text-xs cursor-pointer transition-all flex justify-between items-center ${
+                      selectedHomeworkId === hw.id 
+                        ? "border-[#37352F] bg-neutral-50 font-bold" 
+                        : "border-neutral-200 bg-white"
+                    }`}
+                  >
+                    <span>📓 {hw.title}</span>
+                    <span className="text-[10px] text-neutral-400 px-2 py-0.5 rounded bg-neutral-100">
+                      {hw.dueDate}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 개별 학생 숙제 상태 체크 */}
+            <div className="bg-white border border-neutral-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-bold text-neutral-500">제출 현황 현황판</h4>
+                <span className="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-bold">
+                  완료: {stats.homeworkDone}명 / 미제출: {stats.homeworkNone}명
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {students.map(student => (
+                  <div key={student.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-none">
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => {
+                        setSelectedStudentId(student.id);
+                        setIsEditing(false);
+                      }}
+                    >
+                      <span className="text-sm">{student.emoji}</span>
+                      <div>
+                        <span className="text-xs font-bold block">{student.name}</span>
+                        <span className="text-[9px] text-neutral-400">{student.grade} ({student.classDays ? student.classDays.join("·") : ""})</span>
+                      </div>
+                    </div>
+
+                    {/* 숙제 토글 */}
+                    <div className="flex gap-1">
+                      {["완료", "진행중", "미제출"].map(status => {
+                        const isSelected = student.homeworkStatus === status;
+                        let btnStyle = "";
+                        if (isSelected) {
+                          if (status === "완료") btnStyle = "bg-blue-600 text-white font-bold";
+                          else if (status === "진행중") btnStyle = "bg-yellow-500 text-white font-bold";
+                          else if (status === "미제출") btnStyle = "bg-rose-500 text-white font-bold";
+                        } else {
+                          btnStyle = "bg-neutral-100 text-neutral-400";
+                        }
+
+                        return (
+                          <button
+                            key={status}
+                            onClick={() => handleHomeworkStatusChange(student.id, status)}
+                            className={`text-[9px] px-2.5 py-1.5 rounded-lg transition-all ${btnStyle}`}
+                          >
+                            {status}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ==================== 5. 학생 상세 정보 모달 (Notion Peek View 스타일) ==================== */}
+      {selectedStudent && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center transition-opacity duration-300">
+          <div className="bg-white w-full max-w-lg rounded-t-2xl shadow-2xl overflow-y-auto max-h-[90vh] flex flex-col animate-slideUp">
+            
+            {/* 노션 스타일 모달 헤더 */}
+            <div className="border-b border-neutral-100 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-neutral-400">
+                <span>학생 정보 상세</span>
+                <span>/</span>
+                <span className="font-semibold text-neutral-600">{selectedStudent.name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {!isEditing ? (
+                  <button 
+                    onClick={() => {
+                      setEditStudentData({ ...selectedStudent });
+                      setIsEditing(true);
+                    }}
+                    className="text-xs bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-lg text-neutral-600 font-medium"
+                  >
+                    ⚙ 수정
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleSaveStudentDetails}
+                    className="text-xs bg-[#37352F] text-white px-3 py-1.5 rounded-lg font-bold"
+                  >
+                    💾 저장
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    setSelectedStudentId(null);
+                    setIsEditing(false);
+                  }}
+                  className="text-neutral-400 hover:text-neutral-600 p-1 text-lg"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {}
+            {/* 모달 본문 */}
+            <div className="p-6 space-y-6 flex-1">
+              
+              {/* 프로필 요약 (일반 모드 vs 편집 모드) */}
+              {!isEditing ? (
+                <div className="flex items-start gap-4">
+                  <span className="text-4xl p-3 bg-neutral-100 rounded-2xl block">{selectedStudent.emoji}</span>
+                  <div>
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      {selectedStudent.name}
+                      <span className="text-xs font-normal text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded">
+                        {selectedStudent.grade}
+                      </span>
+                    </h2>
+                    <p className="text-xs text-neutral-400 mt-1">등록일: {selectedStudent.registrationDate}</p>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {selectedStudent.tags.map((tag, i) => (
+                        <span key={i} className="text-[10px] font-medium bg-[#F1F0E8] text-[#5A5A50] px-2 py-0.5 rounded-full">
+                          #{tag}
+                        </span>
+                      ))}
+                      <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+                        🗓 수업 요일: {selectedStudent.classDays ? selectedStudent.classDays.join(", ") : ""}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 bg-neutral-50 p-4 rounded-xl border border-neutral-200">
+                  <h4 className="text-xs font-bold text-neutral-500 uppercase">기본 정보 수정</h4>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-neutral-400 mb-1">에모지</label>
+                      <input 
+                        type="text" 
+                        value={editStudentData.emoji}
+                        onChange={(e) => setEditStudentData({...editStudentData, emoji: e.target.value})}
+                        className="w-full text-xs p-2 border border-neutral-200 rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-neutral-400 mb-1">이름</label>
+                      <input 
+                        type="text" 
+                        value={editStudentData.name}
+                        onChange={(e) => setEditStudentData({...editStudentData, name: e.target.value})}
+                        className="w-full text-xs p-2 border border-neutral-200 rounded"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-neutral-400 mb-1">학년/분류</label>
+                    <input 
+                      type="text" 
+                      value={editStudentData.grade}
+                      onChange={(e) => setEditStudentData({...editStudentData, grade: e.target.value})}
+                      className="w-full text-xs p-2 border border-neutral-200 rounded"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-neutral-400 mb-1">수업 요일 (쉼표로 구분 예: 월, 화, 목)</label>
+                    <input 
+                      type="text" 
+                      value={editStudentData.classDays ? editStudentData.classDays.join(", ") : ""}
+                      onChange={(e) => setEditStudentData({
+                        ...editStudentData, 
+                        classDays: e.target.value.split(",").map(t => t.trim()).filter(Boolean)
+                      })}
+                      className="w-full text-xs p-2 border border-neutral-200 rounded"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] text-neutral-400 mb-1">태그 (쉼표로 구분)</label>
+                    <input 
+                      type="text" 
+                      value={editStudentData.tags.join(", ")}
+                      onChange={(e) => setEditStudentData({...editStudentData, tags: e.target.value.split(",").map(t => t.trim())})}
+                      className="w-full text-xs p-2 border border-neutral-200 rounded"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 속성 표 테이블 (노션 시그니처) */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider">📋 상세 속성</h3>
+                
+                <div className="border border-neutral-200 rounded-xl divide-y divide-neutral-100 text-xs bg-neutral-50/50">
+                  <div className="flex p-3">
+                    <span className="w-24 text-neutral-400 flex items-center">📞 학생 연락처</span>
+                    {isEditing ? (
+                      <input 
+                        type="text" 
+                        value={editStudentData.phone}
+                        onChange={(e) => setEditStudentData({...editStudentData, phone: e.target.value})}
+                        className="flex-1 p-1 border rounded bg-white"
+                      />
+                    ) : (
+                      <a href={`tel:${selectedStudent.phone}`} className="flex-1 text-[#37352F] hover:underline font-medium">
+                        {selectedStudent.phone} 📱
+                      </a>
+                    )}
+                  </div>
+                  
+                  <div className="flex p-3">
+                    <span className="w-24 text-neutral-400 flex items-center">👨‍👩‍👧 학부모 연락처</span>
+                    {isEditing ? (
+                      <input 
+                        type="text" 
+                        value={editStudentData.parentPhone}
+                        onChange={(e) => setEditStudentData({...editStudentData, parentPhone: e.target.value})}
+                        className="flex-1 p-1 border rounded bg-white"
+                      />
+                    ) : (
+                      <a href={`tel:${selectedStudent.parentPhone}`} className="flex-1 text-[#37352F] hover:underline font-medium">
+                        {selectedStudent.parentPhone} 📞
+                      </a>
+                    )}
+                  </div>
+
+                  <div className="flex p-3">
+                    <span className="w-24 text-neutral-400 flex items-center">📅 정규 수업요일</span>
+                    <span className="flex-1 font-semibold text-indigo-700">
+                      {selectedStudent.classDays ? selectedStudent.classDays.join(", ") : ""}요일 수업
+                    </span>
+                  </div>
+
+                  <div className="flex p-3">
+                    <span className="w-24 text-neutral-400 flex items-center">⏱ 당일 출결</span>
+                    <span className="flex-1 font-semibold">{selectedStudent.attendance}</span>
+                  </div>
+
+                  <div className="flex p-3">
+                    <span className="w-24 text-neutral-400 flex items-center">📓 숙제상태</span>
+                    <span className="flex-1 font-semibold">{selectedStudent.homeworkStatus}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 특이사항 & 메모 */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider">📝 특이사항 및 지도 메모</h3>
+                {isEditing ? (
+                  <textarea 
+                    value={editStudentData.notes}
+                    onChange={(e) => setEditStudentData({...editStudentData, notes: e.target.value})}
+                    rows={4}
+                    className="w-full text-xs p-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                  />
+                ) : (
+                  <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200/60 text-xs leading-relaxed text-neutral-700 whitespace-pre-line">
+                    {selectedStudent.notes || "메모가 없습니다."}
+                  </div>
+                )}
+              </div>
+
+              {/* 최근 이력 로그 (출결 & 과제) */}
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="space-y-2">
+                  <h4 className="text-[11px] font-bold text-neutral-400 uppercase">최근 출결 이력</h4>
+                  <div className="space-y-1">
+                    {selectedStudent.attendanceHistory.slice(0, 3).map((history, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-[11px] bg-neutral-100/55 p-2 rounded">
+                        <span className="text-neutral-500">{history.date}</span>
+                        <span className={`font-semibold ${
+                          history.status === "출석" ? "text-emerald-600" : "text-rose-500"
+                        }`}>{history.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-[11px] font-bold text-neutral-400 uppercase">과제 수행 목록</h4>
+                  <div className="space-y-1">
+                    {selectedStudent.homeworkHistory.slice(0, 2).map((hw, idx) => (
+                      <div key={idx} className="text-[10px] bg-neutral-100/55 p-2 rounded flex flex-col gap-0.5">
+                        <div className="font-bold text-neutral-700 truncate">{hw.title}</div>
+                        <div className="flex justify-between text-neutral-400">
+                          <span>피드백: {hw.feedback}</span>
+                          <span className="text-blue-600 font-semibold">{hw.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* 닫기 버튼 */}
+            <div className="border-t border-neutral-100 p-4 bg-neutral-50 flex gap-2">
+              <button 
+                onClick={() => {
+                  setSelectedStudentId(null);
+                  setIsEditing(false);
+                }}
+                className="w-full bg-[#37352F] text-white hover:bg-neutral-800 py-3 rounded-xl text-xs font-bold active:scale-[0.98] transition-all"
+              >
+                페이지 닫기
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ==================== 6. 하단 모바일 내비게이션 바 ==================== */}
+      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-neutral-200 z-40 max-w-lg mx-auto rounded-t-xl shadow-lg flex items-center justify-around py-3 px-2">
+        <button 
+          onClick={() => { setActiveTab("dashboard"); setSearchQuery(""); }}
+          className={`flex flex-col items-center gap-1.5 flex-1 py-1 transition-colors ${
+            activeTab === "dashboard" ? "text-[#37352F] font-bold" : "text-neutral-400 hover:text-neutral-600"
+          }`}
+        >
+          <span className="text-xl">🏠</span>
+          <span className="text-[10px]">대시보드</span>
+        </button>
+
+        <button 
+          onClick={() => { setActiveTab("students"); }}
+          className={`flex flex-col items-center gap-1.5 flex-1 py-1 transition-colors ${
+            activeTab === "students" ? "text-[#37352F] font-bold" : "text-neutral-400 hover:text-neutral-600"
+          }`}
+        >
+          <span className="text-xl">👥</span>
+          <span className="text-[10px]">학생 정보</span>
+        </button>
+
+        <button 
+          onClick={() => { setActiveTab("attendance"); }}
+          className={`flex flex-col items-center gap-1.5 flex-1 py-1 transition-colors ${
+            activeTab === "attendance" ? "text-[#37352F] font-bold" : "text-neutral-400 hover:text-neutral-600"
+          }`}
+        >
+          <span className="text-xl">⏱</span>
+          <span className="text-[10px]">출결 관리</span>
+        </button>
+
+        <button 
+          onClick={() => { setActiveTab("homework"); }}
+          className={`flex flex-col items-center gap-1.5 flex-1 py-1 transition-colors ${
+            activeTab === "homework" ? "text-[#37352F] font-bold" : "text-neutral-400 hover:text-neutral-600"
+          }`}
+        >
+          <span className="text-xl">📝</span>
+          <span className="text-[10px]">숙제 관리</span>
+        </button>
+      </nav>
+
+      {/* 심플 토스트 메시지 팝업 */}
+      {toastMessage && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-xs px-4 py-2.5 rounded-full shadow-lg z-50 flex items-center gap-2 animate-fadeIn">
+          <span>🔔</span> {toastMessage}
+        </div>
+      )}
+
+    </div>
+  );
+}
